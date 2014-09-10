@@ -1,0 +1,9 @@
+{
+  "name": "cheerful-j5",
+  "version": "0.0.1",
+  "description": "Query Cheerlights Thingspeak channel and update RGB LED using Johnny-Five",
+  "dependencies": {
+    "johnny-five": "^0.8.8",
+    "request": "latest"
+  }
+}
