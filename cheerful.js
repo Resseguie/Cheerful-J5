@@ -1,16 +1,29 @@
 var request = require("request")
-  , five = require("johnny-five");
+  , five = require("johnny-five")
+  , Spark = require("spark-io")
+  , board = new five.Board({
+      io: new Spark({
+        token: process.env.SPARK_TOKEN
+      , deviceId: process.env.SPARK_DEVICE_ID
+      })
+    });
 
-five.Board().on("ready", function() {
+
+board.on("ready", function() {
+  console.log("Connected");
 
   // Initialize the RGB LED
   var led = new five.Led.RGB({
     pins: {
-      red: 3,
-      green: 5,
-      blue: 6
+      red: "A5",
+      green: "A6",
+      blue: "A7"
     }
   });
+
+  this.repl.inject({
+    led: led
+  }); 
 
   // RGB LED alternate constructor
   // This will normalize an array of pins in [r, g, b]
@@ -41,13 +54,17 @@ five.Board().on("ready", function() {
   led.on();
   led.color(colorMap["white"]);
 
+  var lastColor = "white";
   setInterval(function() {  
     getLatestColor(function(err, color) {
       if (!err && colorMap[color]) {
-        led.color(colorMap[color]);
+        if(color != lastColor) {
+          lastColor = color;
+          console.log("Changing to "+color);
+          led.color(colorMap[color]);
+        }
       }
     });
-
   }, 3000);
 
 });
