@@ -15,9 +15,9 @@ board.on("ready", function() {
   // Initialize the RGB LED
   var led = new five.Led.RGB({
     pins: {
-      red: "A5",
-      green: "A6",
-      blue: "A7"
+      red: "A5"
+    , green: "A6"
+    , blue: "A7"
     }
   });
 
@@ -51,8 +51,9 @@ board.on("ready", function() {
   };
 
   // Turn it on and set the initial color
-  led.on();
-  led.color(colorMap["white"]);
+  //led.on();
+  //led.color(colorMap["white"]);
+  //led.pulse(1000);
 
   var lastColor = "white";
   setInterval(function() {  
