@@ -2,41 +2,32 @@ var request = require("request")
   , five = require("johnny-five")
   , twit = require("node-tweet-stream")
   , Spark = require("spark-io")
-  , board = new five.Board({
-      io: new Spark({
-        token: process.env.SPARK_TOKEN
-      , deviceId: process.env.SPARK_DEVICE_ID
-      })
-    });
+  , colorMap = require("./cheerlights-colors")
+  , board
+  , pins;
 
-  board.on("ready", function() {
-  var led, colorMap, lastColor, t;
-
-  // Initialize the RGB LED
-  led = new five.Led.RGB({
-    pins: {
-      red: 3,
-      green: 5,
-      blue: 6
-    }
+// If SPARK env vars are set, use spark-io
+if (process.env.SPARK_TOKEN) {
+  board = new five.Board({
+    io: new Spark({
+      token: process.env.SPARK_TOKEN
+    , deviceId: process.env.SPARK_DEVICE_ID
+    })
   });
+  
+  pins = ["A5", "A6", "A7"];
 
-  colorMap = {
-    "red"       : "#ff0000"
-  , "green"     : "#00ff00"
-  , "blue"      : "#0000ff"
-  , "cyan"      : "#00ffff"
-  , "white"     : "#ffffff"
-  , "warmwhite" : "#fdf5e6"
-  , "oldlace"   : "#fdf5e6" // same as warm white
-  , "purple"    : "#a020f0"
-  , "magenta"   : "#ff00ff"
-  , "pink"      : "#ff00ff"
-  , "yellow"    : "#ffff00"
-  , "orange"    : "#ff8c00"
-  };
+} else {
+  board = new five.Board();
+  
+  pins = [3, 5, 6];
+}
 
-  lastColor = "white";
+board.on("ready", function() {
+
+  var lastColor = "white";
+  var led = new five.Led.RGB(pins);
+
   led.color(colorMap[lastColor]);
 
   t = new twit({

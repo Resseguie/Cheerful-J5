@@ -1,49 +1,44 @@
 var request = require("request")
-  , five = require("johnny-five");
+  , five = require("johnny-five")
+  , Spark = require("spark-io")
+  , colorMap = require("./cheerlights-colors")
+  , board
+  , pins;
 
-five.Board().on("ready", function() {
-
-  // Initialize the RGB LED
-  var led = new five.Led.RGB({
-    pins: {
-      red: 3,
-      green: 5,
-      blue: 6
-    }
+// If SPARK env vars are set, use spark-io
+if (process.env.SPARK_TOKEN) {
+  board = new five.Board({
+    io: new Spark({
+      token: process.env.SPARK_TOKEN
+    , deviceId: process.env.SPARK_DEVICE_ID
+    })
   });
+  
+  pins = ["A5", "A6", "A7"];
 
-  // RGB LED alternate constructor
-  // This will normalize an array of pins in [r, g, b]
-  // order to an object (like above) that is shaped like:
-  // {
-  //   red: r,
-  //   green: g,
-  //   blue: b
-  // }
-  //var led = new five.Led.RGB([3,5,6]);
+} else {
+  board = new five.Board();
+  
+  pins = [3, 5, 6];
+}
 
-  var colorMap = {
-    "red"       : "#ff0000"
-  , "green"     : "#00ff00"
-  , "blue"      : "#0000ff"
-  , "cyan"      : "#00ffff"
-  , "white"     : "#ffffff"
-  , "warmwhite" : "#fdf5e6"
-  , "oldlace"   : "#fdf5e6" // same as warm white
-  , "purple"    : "#a020f0"
-  , "magenta"   : "#ff00ff"
-  , "pink"      : "#ff00ff"
-  , "yellow"    : "#ffff00"
-  , "orange"    : "#ff8c00"
-  };
+board.on("ready", function() {
+
+  var lastColor = "white";
+  var led = new five.Led.RGB(pins);
+
+  led.color(colorMap[lastColor]);
 
   setInterval(function() {  
     getLatestColor(function(err, color) {
       if (!err && colorMap[color]) {
-        led.color(colorMap[color]);
+        if(color != lastColor) {
+          lastColor = color;
+          console.log("Changing to "+color);
+          led.color(colorMap[color]);
+        }
       }
     });
-
   }, 3000);
 
 });
