@@ -4,6 +4,7 @@
   "description": "Query Cheerlights Thingspeak channel and update RGB LED using Johnny-Five",
   "dependencies": {
     "johnny-five": "^0.8.9",
+    "node-tweet-stream": "^1.4.0",
     "request": "latest",
     "spark-io": "^0.5.1"
   }
