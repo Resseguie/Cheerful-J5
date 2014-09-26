@@ -1,40 +1,37 @@
-var request = require("request")
-  , five = require("johnny-five")
-  , twit = require("node-tweet-stream")
-  , Spark = require("spark-io")
-  , colorMap = require("./cheerlights-colors")
-  , board
-  , pins;
+var request = require("request"),
+    five = require("johnny-five"),
+    twit = require("node-tweet-stream"),
+    Spark = require("spark-io"),
+    colorMap = require("./cheerlights-colors"),
+    board,
+    pins;
 
 // If SPARK env vars are set, use spark-io
 if (process.env.SPARK_TOKEN) {
+  pins = ["A5", "A6", "A7"];
   board = new five.Board({
     io: new Spark({
-      token: process.env.SPARK_TOKEN
-    , deviceId: process.env.SPARK_DEVICE_ID
+      token: process.env.SPARK_TOKEN,
+      deviceId: process.env.SPARK_DEVICE_ID
     })
   });
-  
-  pins = ["A5", "A6", "A7"];
-
 } else {
-  board = new five.Board();
-  
   pins = [3, 5, 6];
+  board = new five.Board();
 }
 
 board.on("ready", function() {
 
-  var lastColor = "white";
-  var led = new five.Led.RGB(pins);
+  var lastColor = "white",
+      led = new five.Led.RGB(pins);
 
-  led.color(colorMap[lastColor]);
+  led.color( colorMap[lastColor] );
 
   t = new twit({
-    consumer_key: process.env.TWITTER_API_KEY
-  , consumer_secret: process.env.TWITTER_API_SECRET
-  , token: process.env.TWITTER_TOKEN
-  , token_secret: process.env.TWITTER_TOKEN_SECRET
+    consumer_key: process.env.TWITTER_API_KEY,
+    consumer_secret: process.env.TWITTER_API_SECRET,
+    token: process.env.TWITTER_TOKEN,
+    token_secret: process.env.TWITTER_TOKEN_SECRET
   });
 
   t.track("@cheerlights");
@@ -43,11 +40,11 @@ board.on("ready", function() {
   t.on("tweet", function (tweet) {
     // grab first matching supported color in the tweet
     Object.keys(colorMap).some(function(color) {
-      if( tweet.text.indexOf(color) >= 0 ) {
-        if(color != lastColor) {
+      if ( tweet.text.indexOf(color) >= 0 ) {
+        if ( color != lastColor ) {
           lastColor = color;
-          console.log("Changing to "+color);
-          led.color(colorMap[color]);
+          console.log( "Changing to " + color );
+          led.color( colorMap[color] );
         }
         return true;
       } else {
