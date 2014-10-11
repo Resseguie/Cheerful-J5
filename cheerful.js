@@ -24,6 +24,10 @@ board.on("ready", function() {
   var lastColor = "white",
       led = new five.Led.RGB(pins);
 
+  this.repl.inject({
+    led: led
+  });
+
   led.color( colorMap[lastColor] );
 
   setInterval(function() {  
